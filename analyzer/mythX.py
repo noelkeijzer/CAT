@@ -1,10 +1,38 @@
+import time
+from queue import Queue
 from threading import Thread
+from mythril.mythril import Mythril
 
 
-class Main(Thread):
-    def __init__(self):
+class MythX(Thread):
+    def __init__(self, new_address_q, report_q):
         Thread.__init__(self)
+        self.new_address_q = new_address_q
+        self.report_q = report_q
+        Thread.daemon = True
 
     def run(self):
-        # start all the different threads from here
-        pass
+        while True:
+            address = self.new_address_q.get()
+
+            if address is None:
+                break
+
+            mythril = Mythril()
+            mythril.set_api_rpc('infura-ropsten')
+            _, contract = mythril.load_from_address(address=address)
+            report = mythril.fire_lasers('bfs', address=address, contracts=mythril.contracts, max_depth=50, modules=[],
+                                         transaction_count=2, enable_iprof=False)
+
+            self.report_q.put(report)
+            self.new_address_q.task_done()
+
+
+if __name__ == '__main__':
+    address_queue = Queue()
+    report_queue = Queue()
+    myth_x = MythX(address_queue, report_queue)
+    address_queue.put("0x3e1225be4e3839245ba76b823cfbc075b89f751a")
+    address_queue.put(None)
+    report = report_queue.get()
+    print(report.as_text())

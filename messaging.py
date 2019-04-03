@@ -11,7 +11,7 @@ print(web3.eth.getBlock('latest'))
 
 messaging = web3.eth.contract(address="0xCdcDD44f7f617B965983a8C1bB0B845A5766FEbA", abi=abi)
 
-transaction = messaging.functions.sendMessage("0xEf65A9c43c93cA0f7bD2Ba2958Ced84992927227", "mongol jonge").buildTransaction({'from': web3.eth.accounts[0]})
+transaction = messaging.functions.sendMessage("0xEf65A9c43c93cA0f7bD2Ba2958Ced84992927227", "").buildTransaction({'from': web3.eth.accounts[0]})
 
 web3.personal.unlockAccount(web3.eth.accounts[0], "password")
 

@@ -26,7 +26,7 @@ class MythX(Thread):
                                          transaction_count=2, enable_iprof=False)
             self.log("finished processing contract at address " + address)
 
-            self.report_q.put(report)
+            self.report_q.put((address, report.as_text()))
             self.new_address_q.task_done()
 
     @staticmethod

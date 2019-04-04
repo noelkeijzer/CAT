@@ -2,11 +2,10 @@ import sys
 import time
 from queue import Queue
 from analyzer.mythX import MythX
-from messenger.messenger import Messenger
 from scraper.scraper import Scraper
 from messenger.messenger import Messenger
 
-mythril_instances = 3
+mythril_instances = 5
 
 class Main:
     def __init__(self):
@@ -24,7 +23,6 @@ class Main:
         new_address_q = Queue()
         report_q = Queue()
         # create different threads
-
         for instance in range(mythril_instances):
             myth_x = MythX(new_address_q, report_q)
             myth_x.start()
@@ -43,8 +41,7 @@ class Main:
         except KeyboardInterrupt:
             pass
         finally:
-            for instance in range(mythril_instances):
-                new_address_q.put(None)
+            new_address_q.put(None)
             report_q.put(None)
             report_q.put(None)
 

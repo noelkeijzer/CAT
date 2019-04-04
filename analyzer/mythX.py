@@ -2,7 +2,7 @@ import datetime
 from queue import Queue
 from threading import Thread
 from mythril.mythril import Mythril
-
+import subprocess
 
 class MythX(Thread):
     def __init__(self, new_address_q, report_q):
@@ -18,16 +18,26 @@ class MythX(Thread):
             if address is None:
                 break
 
-            mythril = Mythril()
-            mythril.set_api_rpc('infura-ropsten')
-            mythril.load_from_address(address=address)
             self.log("started processing contract at address " + address)
-            report = mythril.fire_lasers('bfs', address=address, contracts=mythril.contracts, max_depth=8, modules=[],
-                                         transaction_count=2, enable_iprof=False)
-            self.log("finished processing contract at address " + address)
+            try:
+                result = subprocess.run(['myth', '--rpc', 'infura-ropsten', '-xa', address, '--max-depth', '12'], stdout=subprocess.PIPE, timeout=60).stdout.decode('utf-8')
+                self.log("finished processing contract at address " + address)
+                # if not result.startswith("The analysis was completed successfully. No issues were detected."):
+                self.report_q.put((address, result))
+                self.new_address_q.task_done()
 
-            self.report_q.put((address, report.as_text()))
-            self.new_address_q.task_done()
+            except subprocess.CalledProcessError as grepexc:
+                self.log("Mythril returned with the following error: " + grepexc.output)
+            except subprocess.TimeoutExpired as timeout:
+                self.log("Mythril took longer than a minute to process the contract at: " + address + ". Aborting")
+
+
+            # mythril = Mythril()
+            # mythril.set_api_rpc('infura-ropsten')
+            # mythril.load_from_address(address=address)
+            # # "delegatecall", "dependence_on_predictable_vars", "deprecated_ops", "ether_thief", "exceptions", "external_calls", "integer", "multiple_sends", "suicide", "unchecked_retval"
+            # report = mythril.fire_lasers('bfs', address=address, contracts=mythril.contracts, max_depth=30, modules=["integer", "unchecked_retval"],
+            #                             transaction_count=2, enable_iprof=False)
 
     @staticmethod
     def log(message):
@@ -38,7 +48,8 @@ if __name__ == '__main__':
     address_queue = Queue()
     report_queue = Queue()
     myth_x = MythX(address_queue, report_queue)
-    address_queue.put("0x3e1225be4e3839245ba76b823cfbc075b89f751a")
+    myth_x.start()
+    address_queue.put("0x34ed2cefcec1f2f789f3378ce8a2cdfcd29beb16")
     address_queue.put(None)
-    report = report_queue.get()
-    print(report.as_text())
+    address, report = report_queue.get()
+    print(report)

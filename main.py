@@ -3,6 +3,7 @@ import time
 from queue import Queue
 from analyzer.mythX import MythX
 from scraper.scraper import Scraper
+from messenger.messenger import Messenger
 
 mythril_instances = 3
 
@@ -30,7 +31,7 @@ class Main:
         scraper = Scraper(new_address_q)
         scraper.start()
 
-        messenger = Messenger(reqort_q, self.private_key, True)
+        messenger = Messenger(report_q, self.private_key, True)
         messenger.start()
 
         try:

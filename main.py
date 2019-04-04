@@ -2,6 +2,7 @@ import sys
 import time
 from queue import Queue
 from analyzer.mythX import MythX
+from messenger.messenger import Messenger
 from scraper.scraper import Scraper
 from messenger.messenger import Messenger
 
@@ -38,7 +39,7 @@ class Main:
             while True:
                 time.sleep(.1)
                 report = report_q.get()
-                print(report.as_text())
+                Scraper.log(report[1])
         except KeyboardInterrupt:
             pass
         finally:

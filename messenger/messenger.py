@@ -30,12 +30,12 @@ class Messenger(Thread):
         nonce = 1
 
         while not self.report_q.empty():
-            message = self.report_q.get()
+            address, message = self.report_q.get()
 
             if message is None:
                 break
 
-            transaction = messaging.functions.sendMessage("0xEf65A9c43c93cA0f7bD2Ba2958Ced84992927227", message).buildTransaction({'from': acc.address, 'nonce': '0x%02x' % nonce})
+            transaction = messaging.functions.sendMessage(address, message).buildTransaction({'from': acc.address, 'nonce': '0x%02x' % nonce})
 
             nonce += 1
 

@@ -11,10 +11,11 @@ class Main:
         pass
 
     def main(self):
-        if len(sys.argv) > 1:
+        if len(sys.argv) > 2:
             Scraper.api = sys.argv[1]
+            self.private_key = sys.argv[2]
         else:
-            print("You did not define an Etherscan API key.")
+            print("You did not define an Etherscan API key or Private key.")
             exit()
 
         # create different queues
@@ -29,6 +30,9 @@ class Main:
         scraper = Scraper(new_address_q)
         scraper.start()
 
+        messenger = Messenger(reqort_q, self.private_key, True)
+        messenger.start()
+
         try:
             while True:
                 time.sleep(.1)
@@ -39,6 +43,7 @@ class Main:
         finally:
             for instance in range(mythril_instances):
                 new_address_q.put(None)
+            report_q.put(None)
             report_q.put(None)
 
 

@@ -4,6 +4,7 @@ from queue import Queue
 from analyzer.mythX import MythX
 from scraper.scraper import Scraper
 
+mythril_instances = 3
 
 class Main:
     def __init__(self):
@@ -20,8 +21,10 @@ class Main:
         new_address_q = Queue()
         report_q = Queue()
         # create different threads
-        myth_x = MythX(new_address_q, report_q)
-        myth_x.start()
+
+        for instance in range(mythril_instances):
+            myth_x = MythX(new_address_q, report_q)
+            myth_x.start()
 
         scraper = Scraper(new_address_q)
         scraper.start()
@@ -34,7 +37,8 @@ class Main:
         except KeyboardInterrupt:
             pass
         finally:
-            new_address_q.put(None)
+            for instance in range(mythril_instances):
+                new_address_q.put(None)
             report_q.put(None)
 
 

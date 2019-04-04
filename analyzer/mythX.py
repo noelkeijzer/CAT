@@ -1,4 +1,4 @@
-import time
+import datetime
 from queue import Queue
 from threading import Thread
 from mythril.mythril import Mythril
@@ -20,12 +20,18 @@ class MythX(Thread):
 
             mythril = Mythril()
             mythril.set_api_rpc('infura-ropsten')
-            _, contract = mythril.load_from_address(address=address)
-            report = mythril.fire_lasers('bfs', address=address, contracts=mythril.contracts, max_depth=50, modules=[],
+            mythril.load_from_address(address=address)
+            self.log("started processing contract at address " + address)
+            report = mythril.fire_lasers('bfs', address=address, contracts=mythril.contracts, max_depth=8, modules=[],
                                          transaction_count=2, enable_iprof=False)
+            self.log("finished processing contract at address " + address)
 
             self.report_q.put(report)
             self.new_address_q.task_done()
+
+    @staticmethod
+    def log(message):
+        print("[CAT - {}] {}".format(datetime.datetime.now().strftime("%H:%M:%S"), message))
 
 
 if __name__ == '__main__':

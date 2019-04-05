@@ -2,6 +2,9 @@ from web3 import Web3, HTTPProvider
 from threading import Thread
 from queue import Queue
 
+from scraper.scraper import Scraper
+
+
 class Messenger(Thread):
     def __init__(self, report_q, private_key, testnet):
         Thread.__init__(self)
@@ -21,11 +24,11 @@ class Messenger(Thread):
         acc = web3.eth.account.privateKeyToAccount(self.private_key)
 
         if not web3.isConnected():
-            print("Messaging:\tNo connection established")
+            Scraper.log("Messaging:\tNo connection established")
 
         messaging = web3.eth.contract(address="0xCdcDD44f7f617B965983a8C1bB0B845A5766FEbA", abi=abi)
 
-        print("Messaging:\tWaiting for messages")
+        Scraper.log("Messaging:\tWaiting for messages")
 
         nonce = 1
 
@@ -43,8 +46,8 @@ class Messenger(Thread):
 
             tx = web3.eth.sendRawTransaction(signed.rawTransaction)
 
-            print("Messaging:\tSent message")
-        print("Messaging:\tReceived terminator, shutting down...")
+            Scraper.log("Messaging:\tSent message")
+        Scraper.log("Messaging:\tReceived terminator, shutting down...")
 
 #if __name__ == '__main__':
 #    report_queue = Queue()

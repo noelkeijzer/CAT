@@ -16,7 +16,7 @@ class Main:
             Scraper.api = sys.argv[1]
             self.private_key = sys.argv[2]
         else:
-            print("You did not define an Etherscan API key or Private key.")
+            Scraper.log("You did not define an Etherscan API key or Private key.")
             exit()
 
         # create different queues

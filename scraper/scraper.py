@@ -27,7 +27,7 @@ class Scraper(Thread):
         while True:
             block = None
 
-            print(*self.block_queue, sep=", ")
+            # self.log(*self.block_queue, sep=", ")
 
             while True:
                 if len(self.block_queue) > 0:
@@ -58,18 +58,13 @@ class Scraper(Thread):
                 Scraper.block_queue.append(block)
                 Scraper.all_blocks.append(block)
 
-                int_block = int(block, 16)
-                int_block_minus_1 = int_block - 0x01
-                int_block_minus_2 = int_block - 0x02
-
-                if hex(int_block_minus_1) not in Scraper.all_blocks:
-                    Scraper.block_queue.append(hex(int_block_minus_1))
-                    Scraper.all_blocks.append(hex(int_block_minus_1))
-                    Scraper.log("Found skipped block: " + hex(int_block_minus_1) + ", will be added to the queue")
-                if hex(int_block_minus_2) not in Scraper.all_blocks:
-                    Scraper.block_queue.append(hex(int_block_minus_2))
-                    Scraper.all_blocks.append(hex(int_block_minus_2))
-                    Scraper.log("Found skipped block: " + hex(int_block_minus_2) + ", will be added to the queue")
+                for i in range(10):
+                    int_block = int(block, 16)
+                    int_block_minus_1 = int_block - (0x01 * i)
+                    if hex(int_block_minus_1) not in Scraper.all_blocks:
+                        Scraper.block_queue.append(hex(int_block_minus_1))
+                        Scraper.all_blocks.append(hex(int_block_minus_1))
+                        Scraper.log("Found skipped block: " + hex(int_block_minus_1) + ", will be added to the queue")
             time.sleep(2)
 
     @staticmethod
@@ -97,7 +92,7 @@ class Scraper(Thread):
             result = json.loads(response.text)
             return result["result"]["creates"]
         except json.decoder.JSONDecodeError:
-            print("Etherscan has blocked you!!!!")
+            Scraper.log("Etherscan has blocked you!!!!")
             return {"jsonrpc": "2.0",
                     "result": {"blockHash": "0x72399c158fb5ca4b3502af1c3bc4e764cbd78ad2417269506b9a6778629ef36e",
                                "blockNumber": "0x515e00", "chainId": "0x3", "condition": "null", "creates": "null",

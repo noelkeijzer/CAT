@@ -1,7 +1,6 @@
 import datetime
 from queue import Queue
 from threading import Thread
-from mythril.mythril import Mythril
 import subprocess
 
 class MythX(Thread):

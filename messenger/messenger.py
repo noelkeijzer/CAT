@@ -1,6 +1,7 @@
 from web3 import Web3, HTTPProvider
 from threading import Thread
 from queue import Queue
+import binascii
 
 from scraper.scraper import Scraper
 
@@ -22,6 +23,7 @@ class Messenger(Thread):
             web3 = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/29e5c62848414895b549aa4befebe614'))
 
         acc = web3.eth.account.privateKeyToAccount(self.private_key)
+        print("Addres: %s" % acc.address)
 
         if not web3.isConnected():
             Scraper.log("Messaging:\tNo connection established")
@@ -32,15 +34,25 @@ class Messenger(Thread):
 
         nonce = 1
 
-        while not self.report_q.empty():
+        while True:
             address, message = self.report_q.get()
 
             if message is None:
                 break
 
-            transaction = messaging.functions.sendMessage(address, message).buildTransaction({'from': acc.address, 'nonce': '0x%02x' % nonce})
+            transaction = {
+                    'to' : address,    #Address of contract owner
+                    #'to' : web3.toChecksumAddress(address), #Use if address is not a checksum address
+                    'from' : acc.address,
+                    'value' : 0,
+                    'gas' : 50000,
+                    'gasPrice' : web3.eth.gasPrice,
+                    'nonce' : web3.eth.getTransactionCount(acc.address),
+                    'data' : message.encode('utf-8').hex()
+                    #'data' : web3.toHex(message)
+            }
 
-            nonce += 1
+#            transaction = messaging.functions.sendMessage(address, message).buildTransaction({'from': acc.address, 'nonce': '0x%02x' % web3.eth.getTransactionCount(address)} # Use this to send the message to a messaging smart contract)
 
             signed = acc.signTransaction(transaction)
 

@@ -35,22 +35,23 @@ class Messenger(Thread):
         nonce = 1
 
         while True:
-            address, message = self.report_q.get()
+            (address, message) = self.report_q.get()
 
             if message is None:
                 break
 
             transaction = {
-                    'to' : address,    #Address of contract owner
-                    #'to' : web3.toChecksumAddress(address), #Use if address is not a checksum address
+                    #'to' : address,    #Address of contract owner
+                    'to' : web3.toChecksumAddress(address), #Use if address is not a checksum address
                     'from' : acc.address,
                     'value' : 0,
-                    'gas' : 50000,
                     'gasPrice' : web3.eth.gasPrice,
                     'nonce' : web3.eth.getTransactionCount(acc.address),
                     'data' : message.encode('utf-8').hex()
                     #'data' : web3.toHex(message)
             }
+
+            transaction['gas'] = web3.eth.estimateGas(transaction)
 
 #            transaction = messaging.functions.sendMessage(address, message).buildTransaction({'from': acc.address, 'nonce': '0x%02x' % web3.eth.getTransactionCount(address)} # Use this to send the message to a messaging smart contract)
 

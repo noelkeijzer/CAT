@@ -36,8 +36,6 @@ class Main:
         try:
             while True:
                 time.sleep(.1)
-                report = report_q.get()
-                Scraper.log(report[1])
         except KeyboardInterrupt:
             pass
         finally:

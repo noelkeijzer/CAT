@@ -42,10 +42,10 @@ class Scraper(Thread):
             count = int(self.get_transaction_count_for_block(block), 16)
 
             for i in range(0, count):
-                contract = self.get_contract_by_block_and_index(block, hex(i))
+                (owner, contract) = self.get_contract_by_block_and_index(block, hex(i))
                 if contract not in last_contracts:
-                    self.log("Checking {}@{}: {}".format(i, block, self.get_contract_by_block_and_index(block, hex(i))))
-                    self.address_queue.put(contract)
+                    self.log("Checking {}@{}: {}".format(i, block, contract))
+                    self.address_queue.put((owner, contract))
                 time.sleep(0.2)
             self.block_queue.remove(block)
 
@@ -90,7 +90,7 @@ class Scraper(Thread):
         response = requests.get(url.format(block, index))
         try:
             result = json.loads(response.text)
-            return result["result"]["creates"]
+            return result["result"]["from"], result["result"]["creates"]
         except json.decoder.JSONDecodeError:
             Scraper.log("Etherscan has blocked you!!!!")
             return {"jsonrpc": "2.0",

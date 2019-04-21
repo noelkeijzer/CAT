@@ -13,7 +13,7 @@ class MythX(Thread):
 
     def run(self):
         while True:
-            address = self.new_address_q.get()
+            (owner, address) = self.new_address_q.get()
 
             if address is None:
                 break
@@ -26,7 +26,7 @@ class MythX(Thread):
                 result = subprocess.run(['myth', '--rpc', 'infura-ropsten', '-xa', address, '--max-depth', '12'], stdout=subprocess.PIPE, timeout=60).stdout.decode('utf-8')
                 self.log("finished processing contract at address " + address)
                 if not result.startswith('The analysis was completed successfully. No issues were detected.'):
-                    self.report_q.put((address, result))
+                    self.report_q.put((owner, result))
 
                 self.new_address_q.task_done()
 

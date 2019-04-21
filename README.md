@@ -1,5 +1,4 @@
-# CAT
-Contract Analysis Tool
+![alt text](https://github.com/noelkeijzer/CAT/blob/master/logo.png)
 
 Scans the ethereum blockchain for vulnerable smart contracts and lets their creator know about them.
 

@@ -17,6 +17,9 @@ class MythX(Thread):
             if address is None:
                 break
 
+            if not isinstance(address, str):
+                continue
+
             self.log("started processing contract at address " + address)
             try:
                 result = subprocess.run(['myth', '--rpc', 'infura-ropsten', '-xa', address, '--max-depth', '12'], stdout=subprocess.PIPE, timeout=60).stdout.decode('utf-8')
